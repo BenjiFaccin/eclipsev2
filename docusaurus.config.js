@@ -1,18 +1,18 @@
-// @ts-check
-import { themes as prismThemes } from 'prism-react-renderer';
+import githubTheme from 'prism-react-renderer/themes/github';
+import draculaTheme from 'prism-react-renderer/themes/dracula';
 
-/** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'BTC Cycle',
   tagline: 'LSTM Model built to predict bitcoin bottom and top',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/Logo-Eclipse.jpg',
 
-  // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
-  baseUrl: '/',
+  // 🌍 Update with your GitHub Pages URL
+  url: 'https://benjifaccin.github.io', // Your GitHub Pages URL
+  baseUrl: '/eclipse/', // Your repository name
 
-  organizationName: 'facebook', // GitHub org/user name.
-  projectName: 'docusaurus', // Repo name.
+  organizationName: 'BenjiFaccin', // Your GitHub username
+  projectName: 'eclipse', // Your repository name
+  deploymentBranch: "gh-pages", // Define the deployment branch
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -25,18 +25,16 @@ const config = {
   presets: [
     [
       'classic',
-      /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'), // Sidebar for docs only
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          sidebarPath: require.resolve('./sidebars.js'),
+          editUrl: 'https://github.com/BenjiFaccin/eclipse/edit/main/',
         },
-        blog: false, // No blog integration
+        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
-      }),
+      },
     ],
   ],
 
@@ -46,7 +44,7 @@ const config = {
       title: 'Home',
       logo: {
         alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        src: 'img/Logo-Eclipse.jpg',
       },
       items: [
         {
@@ -62,9 +60,9 @@ const config = {
         },
       ],
     },
-        prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+    prism: {
+      theme: githubTheme,
+      darkTheme: draculaTheme,
     },
   },
 };

@@ -19,7 +19,7 @@ This will enhance the ability to capture updated new trends, coefficients, seaso
 The main objectives of this model will be to have both performance and validation very good metrics. Threshold, criteria and t-tests used are developed later. 
 <div class="extra-space"></div>
 
-Let's begin the Eclipse journey with **[indicators](../category/Indicators/)** used. 
+Let's begin the Eclipse journey with **indicators** used. 
 
 <div class="extra-space"></div>
 

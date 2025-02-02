@@ -16,4 +16,4 @@ Visually, the normalization of the dependent variable relative to the price appe
 
 What you can immediately see is the non-consideration of second 2021-top, as on-chain metrics regarding my independent variables were too much contradictory.
 
-Now that the dependent variable and independent variables are set, successfully replicated and automatically updated, let’s introduce **[Eclipse](../Category/Methodology)**.
+Now that the dependent variable and independent variables are set, successfully replicated and automatically updated, let’s introduce Eclipse...

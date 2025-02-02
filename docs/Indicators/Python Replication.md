@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Python Replication
 
-*Exportation was done from both APIs [bitcoin-data.com](bitcoin-data.com) and complemented with fallback data from [Blockchain.com](Blockchain.com) info are on a daily basis, and I computed daily data <u>to get weekly ones</u>.* 
+*Exportation was done from both APIs [bitcoin-data.com](https://bitcoin-data.com) and complemented with fallback data from [Blockchain.com](https://www.blockchain.com/) info are on a daily basis, and I computed daily data <u>to get weekly ones</u>.* 
 
 Weekly data for all indicators was derived by identifying <u>Mondays within the dataset</u>. 
 

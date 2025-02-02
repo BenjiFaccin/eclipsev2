@@ -15,9 +15,9 @@ import {
 
 import styles from './index.module.css';
 
-
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
 
 const convertExcelDateToDDMMYYYY = (serial) => {
   const baseDate = new Date(1900, 0, 1);
@@ -26,16 +26,6 @@ const convertExcelDateToDDMMYYYY = (serial) => {
   const month = String(convertedDate.getMonth() + 1).padStart(2, '0'); // Extract month and pad with leading zero if necessary
   const year = convertedDate.getFullYear();
   return `${day}/${month}/${year}`; // Format as dd/mm/yyyy
-};
-
-
-const getNextWednesdayDate = () => {
-  const now = new Date();
-  const nextWednesday = new Date(now);
-  const day = now.getUTCDay();
-  const daysUntilWednesday = (3 - day + 7) % 7 || 7;
-  nextWednesday.setUTCDate(now.getUTCDate() + daysUntilWednesday);
-  return nextWednesday.toLocaleDateString('en-US');
 };
 
 const formatNumber = (number) => {
@@ -83,16 +73,34 @@ const calculateEarnings = () => {
       const getLastWednesdayDate = () => {
         const now = new Date();
         const day = now.getUTCDay();
+        
+        // If today is Wednesday (day === 3), use today's date as last update
+        if (day === 3) {
+          return now.toLocaleDateString('en-US'); // Today's date if it's Wednesday
+        }
+        
+        // Otherwise, calculate the last Wednesday
         const daysSinceWednesday = (day - 3 + 7) % 7 || 7; // Days since last Wednesday
         const lastWednesday = new Date(now);
         lastWednesday.setUTCDate(now.getUTCDate() - daysSinceWednesday);
         return lastWednesday.toLocaleDateString('en-US'); // Format as MM/DD/YYYY
-    };
-    
+      };
+      
+      const getNextWednesdayDate = () => {
+        const now = new Date();
+        const day = now.getUTCDay();
+        
+        // Always calculate the next Wednesday, even if today is Wednesday
+        const daysUntilWednesday = (3 - day + 7) % 7 || 7;
+        const nextWednesday = new Date(now);
+        nextWednesday.setUTCDate(now.getUTCDate() + daysUntilWednesday);
+        return nextWednesday.toLocaleDateString('en-US'); // Format as MM/DD/YYYY
+      };
+      
+      // Call the functions after they are defined
       setLastUpdate(getLastWednesdayDate());
-    
-
       setNextUpdate(getNextWednesdayDate());
+            
 
       const blob = await response.blob();
       const fileReader = new FileReader();
@@ -106,7 +114,7 @@ const calculateEarnings = () => {
 
         const labels = jsonData.map((row) => convertExcelDateToDDMMYYYY(row.date));
         const data = jsonData.map((row) => row['Predicted Variable']);
-        const btcPrice = jsonData.map((row) => row['btcPrice_y']); // Extract BTC price data
+        const btcPrice = jsonData.map((row) => row['btcPrice']); // Extract BTC price data
 
         // Find min and max for scaling BTC price
         const indicatorMin = Math.min(...data);
@@ -451,25 +459,28 @@ const calculateEarnings = () => {
   
     // Define the cutoff date based on the selected timeframe
     switch (timeframe) {
-      case '3m':
-        cutoffDate = new Date(now.setMonth(now.getMonth() - 3));
+      case '6m':
+        cutoffDate = new Date();
+        cutoffDate.setMonth(now.getMonth() - 6);
         break;
-      case '1y':
-        cutoffDate = new Date(now.setFullYear(now.getFullYear() - 1));
+      case '3y':
+        cutoffDate = new Date();
+        cutoffDate.setFullYear(now.getFullYear() - 3);
         break;
       case '5y':
-        cutoffDate = new Date(now.setFullYear(now.getFullYear() - 5));
+        cutoffDate = new Date();
+        cutoffDate.setFullYear(now.getFullYear() - 5);
         break;
       case 'all':
       default:
         cutoffDate = null; // No cutoff for "All"
     }
   
-    // Filter labels and save their indices
+    // Parse labels as dates for filtering
     const filteredIndices = [];
     const filteredLabels = fullChartData.labels.filter((label, index) => {
-      const [month, year] = label.split('/').map(Number);
-      const labelDate = new Date(year, month - 1); // Convert MM/YYYY to Date
+      const [day, month, year] = label.split('/').map(Number); // Parse DD/MM/YYYY
+      const labelDate = new Date(year, month - 1, day); // Create Date object
       if (!cutoffDate || labelDate >= cutoffDate) {
         filteredIndices.push(index); // Keep the index of matching labels
         return true;
@@ -478,28 +489,61 @@ const calculateEarnings = () => {
     });
   
     // Filter datasets based on the indices
+    const filteredData = fullChartData.datasets[0].data.filter((_, i) => filteredIndices.includes(i));
+  
     const filteredDatasets = fullChartData.datasets.map((dataset) => ({
       ...dataset,
       data: filteredIndices.map((i) => dataset.data[i]), // Use filtered indices
-      borderColor: (context) => {
-        const chart = context.chart;
-        const { ctx, chartArea, scales } = chart;
-        const yAxis = scales.y;
+      borderColor: filteredData.map((value) => {
+        let color;
+        if (value <= -1) {
+            color = '#008000'; // Exact GREEN at -1
+        } else if (value >= 1) {
+            color = '#FF0000'; // Exact RED at 1
+        } else {
+            // Define the exact HEX values based on the default gradient
+const RED = '#008000';  // Default green (-1)
+const YELLOW = '#FFFF00'; // Default yellow (0)
+const GREEN = '#FF0000';    // Default red (1)
+
+// Function to interpolate between two HEX colors
+const interpolateColor = (startColor, endColor, factor) => {
+    const hexToRgb = (hex) => ({
+        r: parseInt(hex.substring(1, 3), 16),
+        g: parseInt(hex.substring(3, 5), 16),
+        b: parseInt(hex.substring(5, 7), 16),
+    });
+
+    const startRGB = hexToRgb(startColor);
+    const endRGB = hexToRgb(endColor);
+
+    return `rgb(${Math.round(startRGB.r + factor * (endRGB.r - startRGB.r))}, 
+                ${Math.round(startRGB.g + factor * (endRGB.g - startRGB.g))}, 
+                ${Math.round(startRGB.b + factor * (endRGB.b - startRGB.b))})`;
+};
+
+// Assign colors based on value
+if (value <= -1) {
+    color = GREEN;  // Exact GREEN at -1
+} else if (value >= 1) {
+    color = RED;    // Exact RED at 1
+} else if (value < 0) {
+    // Transition from Green (-1) to Yellow (0)
+    const factor = (value + 1);  // Normalize from [-1, 0] to [0, 1]
+    color = interpolateColor(GREEN, YELLOW, factor);
+} else {
+    // Transition from Yellow (0) to Red (1)
+    const factor = value;  // Normalize from [0, 1] to [0, 1]
+    color = interpolateColor(YELLOW, RED, factor);
+}
+
+        }
+        return color;
+    }),
+          pointBackgroundColor: dataset.data.map((value) => {
   
-        if (!chartArea) return 'rgba(0, 0, 0, 0)';
-  
-        // Get pixel positions for -1 and 1
-        const top = yAxis.getPixelForValue(1);
-        const bottom = yAxis.getPixelForValue(-1);
-  
-        // Create a fixed gradient based on the fixed range -1 to 1
-        const gradient = ctx.createLinearGradient(0, top, 0, bottom);
-        gradient.addColorStop(0, 'green'); // Red for 1
-        gradient.addColorStop(0.5, 'yellow'); // Yellow for 0
-        gradient.addColorStop(1, 'red'); // Green for -1
-  
-        return gradient;
-      },
+        // Interpolate between red (-1) → yellow (0) → green (1)
+      }),
     }));
   
     // If BTC Price is toggled on, re-add it to the datasets
@@ -523,188 +567,189 @@ const calculateEarnings = () => {
           
   return (
     <Layout
-      title="Eclipse Model 1.0"
-      description="LSTM Model built to predict bitcoin bottom and top"
+    title="Eclipse Model 1.0"
+    description="LSTM Model built to predict bitcoin bottom and top"
     >
-      <header className={styles.heroBanner} style={{ marginTop: '-40px' }}>
-        <div className="container" style={{ position: 'relative', marginBottom: '0px' }}>
-          <div style={lastUpdateStyle}>
-            Last update: {lastUpdate || 'Fetching...'}
-          </div>
-          <div style={nextUpdateStyle}>
-            Next update: {nextUpdate || 'Calculating...'}
-            </div>
-            <h1 className="hero__title" style={{ marginBottom: '-0px' }}>Eclipse Bitcoin Cycle Indicator</h1>
-            <p className="hero__subtitle" style={{ marginBottom: '0px' }}>
-            LSTM Model built to predict bitcoin bottom and top
-          </p>
-          <div style={chartContainerStyle}>
-            {chartData ? (
-              <>
-                <div style={{ position: 'relative', marginBottom: '10px' }}>
-  <button
+    <header className={styles.heroBanner} style={{ marginTop: '-40px' }}>
+    <div className="container" style={{ position: 'relative', marginBottom: '0px' }}>
+    <div style={lastUpdateStyle}>
+    Last update: {lastUpdate || 'Fetching...'}
+    </div>
+    <div style={nextUpdateStyle}>
+    Next update: {nextUpdate || 'Calculating...'}
+    </div>
+    <h1 className="hero__title" style={{ marginBottom: '-0px' }}>Eclipse Bitcoin Cycle Indicator</h1>
+    <p className="hero__subtitle" style={{ marginBottom: '0px' }}>
+    LSTM Model built to predict bitcoin bottom and top
+    </p>
+    <div style={chartContainerStyle}>
+    {chartData ? (
+    <>
+    <div style={{ position: 'relative', marginBottom: '10px' }}>
+    <button
     style={{
-      position: 'absolute',
-      top: '-10px', // Réduction de l'espace pour rapprocher ce bouton
-      right: 0,
-      padding: '5px 10px',
-      backgroundColor: 'lightgray',
-      border: '1px solid #ccc',
-      borderRadius: '5px',
-      cursor: 'pointer',
+    position: 'absolute',
+    top: '-10px',
+    right: 0,
+    padding: '5px 10px',
+    backgroundColor: 'lightgray',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    cursor: 'pointer',
     }}
     onClick={handleToggleBtcPrice}
-  >
+    >
     {showBtcPrice ? 'Remove Bitcoin Price' : 'Add Bitcoin Price'}
-  </button>
-</div>
-<div style={{ position: 'relative', marginBottom: '10px' }}>
-  {/* Add Bitcoin Price Button */}
-  <button
+    </button>
+    </div>
+    <div style={{ position: 'relative', marginBottom: '10px' }}>
+    <button
     style={{
-      position: 'absolute',
-      top: '-20px', // Align with the chart
-      right: 0,
-      padding: '8px 15px', // Better padding for cleaner look
-      backgroundColor: '#f0f0f0', // Softer background
-      border: '1px solid #ccc',
-      borderRadius: '5px',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Subtle shadow
+    position: 'absolute',
+    top: '-20px',
+    right: 0,
+    padding: '8px 15px',
+    backgroundColor: '#f0f0f0',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
     }}
     onClick={handleToggleBtcPrice}
-  >
+    >
     {showBtcPrice ? 'Remove Bitcoin Price' : 'Add Bitcoin Price'}
-  </button>
-
-  {/* Filter Buttons */}
-  <div
+    </button>
+    <div
     style={{
-      position: 'absolute',
-      top: '23px', // Position directly below the "Add Bitcoin Price" button
-      right: 0, // Keep aligned with the button
-      display: 'flex', // Align buttons horizontally
-      flexDirection: 'row', // Horizontal alignment
-      gap: '5px', // Add small space between buttons
+    position: 'absolute',
+    top: '23px',
+    right: 0,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '5px',
     }}
-  >
-    <button
-      style={{
-        padding: '8px 12px',
-        backgroundColor: timeframe === 'all' ? '#dcdcdc' : '#ffffff',
-        border: '1px solid #ccc',
-        borderRadius: '5px', // Rounded corners
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      }}
-      onClick={() => filterChartData('all')}
     >
-      All
+    <button
+    style={{
+    padding: '8px 12px',
+    backgroundColor: timeframe === 'all' ? '#dcdcdc' : '#ffffff',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    }}
+    onClick={() => filterChartData('all')}
+    >
+    All
     </button>
     <button
-      style={{
-        padding: '8px 12px',
-        backgroundColor: timeframe === '5y' ? '#dcdcdc' : '#ffffff',
-        border: '1px solid #ccc',
-        borderRadius: '5px', // Rounded corners
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      }}
-      onClick={() => filterChartData('5y')}
+    style={{
+    padding: '8px 12px',
+    backgroundColor: timeframe === '5y' ? '#dcdcdc' : '#ffffff',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    }}
+    onClick={() => filterChartData('5y')}
     >
-      5Y
+    5Y
     </button>
     <button
-      style={{
-        padding: '8px 12px',
-        backgroundColor: timeframe === '1y' ? '#dcdcdc' : '#ffffff',
-        border: '1px solid #ccc',
-        borderRadius: '5px', // Rounded corners
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      }}
-      onClick={() => filterChartData('1y')}
+    style={{
+    padding: '8px 12px',
+    backgroundColor: timeframe === '3y' ? '#dcdcdc' : '#ffffff',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    }}
+    onClick={() => filterChartData('3y')}
     >
-      1Y
+    3Y
     </button>
     <button
-      style={{
-        padding: '8px 12px',
-        backgroundColor: timeframe === '3m' ? '#dcdcdc' : '#ffffff',
-        border: '1px solid #ccc',
-        borderRadius: '5px', // Rounded corners
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      }}
-      onClick={() => filterChartData('3m')}
+    style={{
+    padding: '8px 12px',
+    backgroundColor: timeframe === '6m' ? '#dcdcdc' : '#ffffff',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    }}
+    onClick={() => filterChartData('6m')}
     >
-      3M
+    6M
     </button>
-  </div>
-</div>
-
-                <Line data={chartData} options={options} ref={chartRef} />
-              </>
-            ) : (
-              <p>Loading graph...</p>
-            )}
-          </div>
-          <GradientBar chartData={chartData} />
-                    {/* Placement Amount Slider and Earnings Calculation */}
-                    <div style={{ marginBottom: '20px' }}>
-  <input
+    </div>
+    </div>
+    <Line data={chartData} options={options} ref={chartRef} />
+    </>
+    ) : (
+    <p>Loading graph...</p>
+    )}
+    </div>
+    <GradientBar chartData={chartData} />
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginTop: '20px' }}>
+    <div style={{ flex: 1, maxWidth: '50%', textAlign: 'left', padding: '20px', boxSizing: 'border-box' }}>
+    <input
     type="range"
     min="100"
     max="1000000"
     value={placementAmount}
     onChange={(e) => setPlacementAmount(parseInt(e.target.value))}
     className="range-slider"
-  />
-  
-  {/* Circles at each step */}
-  {Array.from({ length: 10 }, (_, index) => (
-    <div
-      key={index}
-      className="circle-indicator"
-      style={{
-        left: `${(index + 1) * (100 / 10)}%`, // Position circles at each step
-      }}
-    ></div>
-  ))}
-
-  <div style={{ display: 'flex', alignItems: 'center' }}>
-    <p style={{ margin: 0 }}>Amount Placed:</p>
-    <p style={{ margin: '0 10px' }}>${formatNumber(placementAmount)}</p>
-    {/* New input box to directly change the multiplier */}
-    <input
-      type="number"
-      min="0"
-      max="1000000"
-      value={placementAmount}
-      onChange={(e) => setPlacementAmount(Math.min(1000000, Math.max(0, parseInt(e.target.value))))}
-      style={{
-        width: '120px',
-        padding: '5px',
-        fontSize: '14px',
-        textAlign: 'center',
-        borderRadius: '5px',
-        border: '1px solid #ccc',
-      }}
+    style={{ width: '100%' }}
     />
-  </div>
-  <p>Amount Placed: ${formatNumber(placementAmount)}</p>
-  <p>
-    If you have placed ${formatNumber(placementAmount)}, you would have earned ${formatNumber(calculateEarnings().earned)} based on Eclipse's cycle strategy, about 11 times more equivalent to an extra +${formatNumber(calculateEarnings().difference)}  than long-only bitcoin since 2015!
-  </p>
-</div>
-
-        </div>
-      </header>
+    <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+    <p style={{ margin: 0 }}>Amount Placed: </p>
+    <input
+    type="number"
+    min="0"
+    max="1000000"
+    value={placementAmount}
+    onChange={(e) =>
+    setPlacementAmount(Math.min(1000000, Math.max(0, parseInt(e.target.value))))
+    }
+    style={{
+    width: '120px',
+    padding: '5px',
+    fontSize: '14px',
+    textAlign: 'center',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    }}
+    />
+    </div>
+    <p style={{ marginTop: '10px' }}>
+    If you have placed <strong>${formatNumber(placementAmount)}</strong>, you would have earned
+    <strong> ${formatNumber(calculateEarnings().earned)}</strong> based on Eclipse's cycle strategy,
+    about 11 times more equivalent to an extra <strong>+${formatNumber(calculateEarnings().difference)}</strong> than long-only bitcoin since 2015!
+    </p>
+    </div>
+    <div style={{ flex: 1, maxWidth: '50%', textAlign: 'center', padding: '20px', boxSizing: 'border-box' }}>
+    <h3></h3>
+    <p></p>
+    <iframe
+    src="/newsletter.html"
+    width="100%"
+    height="300px"
+    style={{
+    border: '1px solid #ccc',
+    borderRadius: '10px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    }}
+    title="Newsletter Signup"
+    ></iframe>
+    </div>
+    </div>
+    </div>
+    </header>
     </Layout>
-  );
+    );
 }

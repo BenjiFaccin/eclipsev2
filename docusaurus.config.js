@@ -1,18 +1,18 @@
-import githubTheme from 'prism-react-renderer/themes/github';
-import draculaTheme from 'prism-react-renderer/themes/dracula';
+// @ts-check
+import { themes as prismThemes } from 'prism-react-renderer';
 
+/** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'BTC Cycle',
   tagline: 'LSTM Model built to predict bitcoin bottom and top',
-  favicon: 'img/Logo-Eclipse.jpg',
+  favicon: 'img/favicon.ico',
 
-  // 🌍 Update with your GitHub Pages URL
-  url: 'https://benjifaccin.github.io', // Your GitHub Pages URL
-  baseUrl: '/eclipse/', // Your repository name
+  // Set the production url of your site here
+  url: 'https://your-docusaurus-site.example.com',
+  baseUrl: '/',
 
-  organizationName: 'BenjiFaccin', // Your GitHub username
-  projectName: 'eclipse', // Your repository name
-  deploymentBranch: "gh-pages", // Define the deployment branch
+  organizationName: 'facebook', // GitHub org/user name.
+  projectName: 'docusaurus', // Repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -25,16 +25,18 @@ const config = {
   presets: [
     [
       'classic',
-      {
+      /** @type {import('@docusaurus/preset-classic').Options} */
+      ({
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/BenjiFaccin/eclipse/edit/main/',
+          sidebarPath: require.resolve('./sidebars.js'), // Sidebar for docs only
+          editUrl:
+            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
-        blog: false,
+        blog: false, // No blog integration
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
-      },
+      }),
     ],
   ],
 
@@ -60,9 +62,9 @@ const config = {
         },
       ],
     },
-    prism: {
-      theme: githubTheme,
-      darkTheme: draculaTheme,
+        prism: {
+      theme: prismThemes.github,
+      darkTheme: prismThemes.dracula,
     },
   },
 };

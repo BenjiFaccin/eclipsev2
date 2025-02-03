@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Signup</title>
+
     <!-- MailerLite Universal -->
     <script>
         (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[]).push(arguments);},
@@ -11,8 +13,95 @@
         })(window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
         ml('account', '1306007');
     </script>
+
+    <!-- ✅ CSS pour réduire proportionnellement -->
+    <style>
+        .newsletter-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 400px; /* Default width */
+            margin: 0 auto;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            transition: all 0.3s ease-in-out;
+        }
+    
+        .ml-embedded {
+            width: 100% !important;
+            padding: 10px !important;
+            text-align: center !important;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+    
+        .ml-embedded h1, 
+        .ml-embedded h2, 
+        .ml-embedded h3 {
+            font-size: 16px !important; /* Increased title size */
+            margin-bottom: 10px !important;
+        }
+    
+        .ml-embedded p {
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            margin-bottom: 10px !important;
+        }
+    
+        .ml-embedded input[type="email"] {
+            font-size: 14px !important;
+            padding: 6px !important;
+            width: 100% !important;
+        }
+    
+        .ml-embedded button {
+            font-size: 14px !important;
+            padding: 8px 12px !important;
+            width: 100% !important;
+            background-color: #007bff !important;
+            color: white !important;
+            border-radius: 4px !important;
+        }
+    
+        .ml-embedded button:hover {
+            background-color: #0056b3 !important;
+        }
+    
+        /* 🔥 Make it LARGER on DESKTOP (Screen Width > 768px) */
+        @media (min-width: 768px) {
+            .newsletter-container {
+                max-width: 600px; /* Increased size for desktop */
+                transform: scale(1.2); /* 20% larger */
+            }
+    
+            .ml-embedded h1, 
+            .ml-embedded h2, 
+            .ml-embedded h3 {
+                font-size: 20px !important;
+            }
+    
+            .ml-embedded p {
+                font-size: 16px !important;
+            }
+    
+            .ml-embedded input[type="email"] {
+                font-size: 16px !important;
+            }
+    
+            .ml-embedded button {
+                font-size: 16px !important;
+                padding: 10px 14px !important;
+            }
+        }
+    </style>
+    
 </head>
 <body>
-    <div class="ml-embedded" data-form="NEqN5p"></div>
+    <div class="newsletter-container">
+        <div class="ml-embedded" data-form="NEqN5p"></div>
+    </div>
 </body>
 </html>

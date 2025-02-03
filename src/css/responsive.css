@@ -1,0 +1,10 @@
+@media screen and (max-width: 768px) {
+    .hero__title {
+      font-size: 24px !important; /* Taille plus petite pour mobile */
+    }
+  
+    .hero__subtitle {
+      font-size: 16px !important; /* Ajustement du sous-titre */
+    }
+  }
+  

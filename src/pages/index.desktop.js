@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Layout from '@theme/Layout';
 import { Line } from 'react-chartjs-2';
 import * as XLSX from 'xlsx';
+import { Analytics } from "@vercel/analytics/react"
 import {
   Chart as ChartJS,
   CategoryScale,

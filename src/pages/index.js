@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from "@vercel/analytics/react"
 
 const DesktopComponent = React.lazy(() => import('./index.desktop'));
 const MobileComponent = React.lazy(() => import('./index.mobile'));

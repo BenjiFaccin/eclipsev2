@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/react";
 
 const DesktopComponent = React.lazy(() => import('./index.desktop'));
 const MobileComponent = React.lazy(() => import('./index.mobile'));
@@ -19,9 +19,12 @@ const IndexPage = () => {
   }, []);
 
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
-      {isMobile ? <MobileComponent /> : <DesktopComponent />}
-    </React.Suspense>
+    <>
+      <React.Suspense fallback={<div>Loading...</div>}>
+        {isMobile ? <MobileComponent /> : <DesktopComponent />}
+      </React.Suspense>
+      <Analytics /> {/* Ajout de Vercel Analytics ici */}
+    </>
   );
 };
 

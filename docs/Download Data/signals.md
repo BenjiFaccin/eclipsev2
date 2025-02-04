@@ -1,18 +1,18 @@
 ---
 id: signals
 title: Bitcoin Predictions Data
-sidebar_label: TradingView Indicator
+sidebar_label: API Data
 ---
 
 ## 📥 API bitcoin Prediction Data
 
-The latest predictions for Bitcoin cycle tops and bottoms are available in CSV format.
+The latest predictions for Bitcoin cycle tops and bottoms are available in JSON format.
 
-➡️ **[Data: signals.csv](./signals.csv)**
+➡️ **[Data: signals.json](./signals.json)**
 
 The file contains predictions like this:
 
-```CSV
+```json
 {
   "predictions": [
     {"date": "2024-02-01", "Predicted Variable": 0.659},

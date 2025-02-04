@@ -15,7 +15,7 @@ import {
 } from 'chart.js';
 
 import styles from './index.module.css';
-
+// Test
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 

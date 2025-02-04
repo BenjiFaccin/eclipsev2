@@ -5,7 +5,7 @@ import { themes as prismThemes } from 'prism-react-renderer';
 const config = {
   title: 'BTC Cycle',
   tagline: 'LSTM Model built to predict bitcoin bottom and top',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/Logo-Eclipse.jpg',
 
   // Set the production url of your site here
   url: 'https://your-docusaurus-site.example.com',

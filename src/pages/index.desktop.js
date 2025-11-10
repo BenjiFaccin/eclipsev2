@@ -20,14 +20,28 @@ import styles from './index.module.css';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 
-const convertExcelDateToDDMMYYYY = (serial) => {
-  const baseDate = new Date(1900, 0, 1);
-  const convertedDate = new Date(baseDate.getTime() + (serial - 2) * 86400000);
-  const day = String(convertedDate.getDate()).padStart(2, '0'); // Extract day and pad with leading zero if necessary
-  const month = String(convertedDate.getMonth() + 1).padStart(2, '0'); // Extract month and pad with leading zero if necessary
-  const year = convertedDate.getFullYear();
-  return `${day}/${month}/${year}`; // Format as dd/mm/yyyy
+// ✅ Nouvelle version compatible avec "date" (texte ou nombre Excel)
+const convertExcelDateToDDMMYYYY = (value) => {
+  // Cas 1 : valeur Excel numérique (ex: 45678)
+  if (typeof value === 'number') {
+    const baseDate = new Date(1900, 0, 1);
+    const convertedDate = new Date(baseDate.getTime() + (value - 2) * 86400000);
+    const day = String(convertedDate.getDate()).padStart(2, '0');
+    const month = String(convertedDate.getMonth() + 1).padStart(2, '0');
+    const year = convertedDate.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  // Cas 2 : valeur texte ISO (ex: "2025-11-10")
+  if (typeof value === 'string' && value.includes('-')) {
+    const [year, month, day] = value.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  // Cas 3 : si vide ou invalide
+  return 'Invalid Date';
 };
+
 
 const formatNumber = (number) => {
   if (number >= 1000 && number < 1000000) {
